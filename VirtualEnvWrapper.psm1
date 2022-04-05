@@ -46,7 +46,7 @@ function Get-FullPyEnvPath($pypath) {
 #
 # Display a formated error message
 #
-function Write-FormatedError($err) {
+function Write-FormattedError($err) {
     Write-Host
     Write-Host "  ERROR: $err" -ForegroundColor Red
     Write-Host
@@ -55,7 +55,7 @@ function Write-FormatedError($err) {
 #
 # Display a formated success messge
 #
-function Write-FormatedSuccess($err) {
+function Write-FormattedSuccess($err) {
     Write-Host
     Write-Host "  SUCCESS: $err" -ForegroundColor Green
     Write-Host
@@ -69,7 +69,7 @@ function Write-FormatedSuccess($err) {
 #
 function Get-PythonVersion($Python) {
     if (!(Test-Path $Python)) {
-        Write-FormatedError "$Python doesn't exist"
+        Write-FormattedError "$Python doesn't exist"
         return
     }
 
@@ -83,7 +83,7 @@ function Get-PythonVersion($Python) {
     $is_version_3 = $python_version -match "^Python\s3" -and !$is_version_2
 
     if (!$is_version_2 -and !$is_version_3) {
-        Write-FormatedError "Unknown Python Version expected Python 2 or Python 3 got $python_version"
+        Write-FormattedError "Unknown Python Version expected Python 2 or Python 3 got $python_version"
         return
     }
 
@@ -100,11 +100,11 @@ function Invoke-CreatePyEnv($Command, $Name) {
 
     Invoke-Expression "$Command '$NewEnv'"
 
-    $VEnvScritpsPath = Join-Path $NewEnv "Scripts"
-    $ActivatepPath = Join-Path $VEnvScritpsPath "activate.ps1"
-    . $ActivatepPath
+    $VEnvScriptsPath = Join-Path $NewEnv "Scripts"
+    $ActivatePath = Join-Path $VEnvScriptsPath "activate.ps1"
+    . $ActivatePath
 
-    Write-FormatedSuccess "$Name virtual environment was created and your're in."
+    Write-FormattedSuccess "$Name virtual environment was created and you are in it."
 }
 
 #
@@ -114,7 +114,7 @@ function New-Python2Env($Python, $Name)  {
     $Command = (Join-Path (Join-Path (Split-Path $Python -Parent) "Scripts") "virtualenv.exe")
 
     if ((Test-Path $Command) -eq $false) {
-        Write-FormatedError "You must install virtualenv program to create the Python virtual environment '$Name'"
+        Write-FormattedError "You must install virtualenv program to create the Python virtual environment '$Name'"
         return
     }
 
@@ -186,7 +186,7 @@ function New-PythonEnv($Python, $Name, $Packages, $Append) {
     } elseif ($Version -eq "3") {
         New-Python3Env -Python $Python -Name $Name
     } else {
-        Write-FormatedError "This is the debug voice. I expected a Python version, got $Version"
+        Write-FormattedError "This is the debug voice. I expected a Python version, got $Version"
         RestorePath
 
     }
@@ -227,13 +227,13 @@ function Workon {
     )
 
     if (!$Name) {
-        Write-FormatedError "No python venv to work on. Did you forget the -Name option?"
+        Write-FormattedError "No python venv to work on. Did you forget the -Name option?"
         return
     }
 
     $new_pyenv = Get-FullPyEnvPath $Name
     if ((Test-Path $new_pyenv) -eq $false) {
-        Write-FormatedError "The Python environment '$Name' don't exists. You may want to create it with 'MkVirtualEnv $Name'"
+        Write-FormattedError "The Python environment '$Name' don't exists. You may want to create it with 'MkVirtualEnv $Name'"
         return
     }
 
@@ -243,7 +243,7 @@ function Workon {
 
     $activate_path = "$new_pyenv\Scripts\Activate.ps1"
     if ((Test-path $activate_path) -eq $false) {
-        Write-FormatedError "Enable to find the activation script. You Python environment $Name seems compromized"
+        Write-FormattedError "Enable to find the activation script. You Python environment $Name seems compromised"
         return
     }
 
@@ -279,28 +279,28 @@ function New-VirtualEnv()
     )
 
     if ($Name.StartsWith("-")) {
-        Write-FormatedError "The virtual environment name couldn't start with - (minus)"
+        Write-FormattedError "The virtual environment name couldn't start with - (minus)"
         return
     }
 
     if ($Append -and !(Test-Path $Append)) {
-        Write-FormatedError "The path '$Append' doesn't exist"
+        Write-FormattedError "The path '$Append' doesn't exist"
         return
     }
 
     if (!$Name) {
-        Write-FormatedError "You must at least give me a PyEnv name"
+        Write-FormattedError "You must at least give me a PyEnv name"
         return
     }
 
     if ((IsPyEnvExists $Name) -eq $true) {
-        Write-FormatedError "There is an environment with the same name"
+        Write-FormattedError "There is an environment with the same name"
         return
     }
 
     $PythonRealPath = Find-Python $Python
     if (!$PythonRealPath) {
-        Write-FormatedError "The path to access to python doesn't exist. Python directory = $Python"
+        Write-FormattedError "The path to access to python doesn't exist. Python directory = $Python"
         return
     }
 
@@ -386,21 +386,21 @@ function Remove-VirtualEnv {
     )
 
     if ((Get-IsInPythonVenv $Name) -eq $true) {
-        Write-FormatedError "You want to destroy the Virtual Env you are in. Please type 'deactivate' before to dispose the environment before"
+        Write-FormattedError "You want to destroy the Virtual Env you are in. Please type 'deactivate' before to dispose the environment before"
         return
     }
 
     if (!$Name) {
-        Write-FormatedError "You must fill a environmennt name"
+        Write-FormattedError "You must fill a environment name"
         return
     }
 
     $full_path = Get-FullPyEnvPath $Name
     if ((Test-Path $full_path) -eq $true) {
         Remove-Item -Path $full_path -Recurse
-        Write-FormatedSuccess "$Name was deleted permanently"
+        Write-FormattedSuccess "$Name was deleted permanently"
     } else {
-        Write-FormatedError "$Name not found"
+        Write-FormattedError "$Name not found"
     }
 }
 
